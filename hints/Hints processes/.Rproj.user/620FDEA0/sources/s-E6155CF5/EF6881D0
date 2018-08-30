@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1535021211016.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "EF6881D0",
+    "lastKnownWriteTime" : 1535027652,
+    "last_content_update" : 1535027652749,
+    "path" : "C:/Users/reedm/UK Parliament/THOMAS, Liz - DAs/Hints/Hints processes/PotentialNewRules.R",
+    "project_path" : "PotentialNewRules.R",
+    "properties" : {
+        "cursorPosition" : "12,38",
+        "scrollLine" : "9",
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 5,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

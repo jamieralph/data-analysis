@@ -1,0 +1,55 @@
+
+results <- read.csv("C:/Users/reedm/Downloads/query_data (31).csv", stringsAsFactors = F)
+names(results) = c("pageNoGrouped", names(results)[2:length(results)])
+results$isWeekend = as.logical(results$isWeekend)
+results$timestamp = as.Date(results$timestamp)
+
+library(ggplot2)
+
+
+ggplot(results, aes(x=paste(pageNoGrouped, FewerOSs, isWeekend), y=percent  )) + geom_bar(stat="identity", aes(fill=paste(FewerOSs,isWeekend)))+
+  theme(axis.text.x = element_text(angle=20, hjust=1))
+
+
+results$sd = sqrt(results$percent * (1 - results$percent) / results$totalClicks)
+
+
+library(plyr)
+
+rollingAverage = ddply(results, .(weekNumber,isWeekend,FewerOSs,pageNoGrouped ), function(x){
+  preceding = subset(results, weekNumber < x$weekNumber[1] & weekNumber >= x$weekNumber[1] - 4 & 
+                            isWeekend == x$isWeekend[1] & 
+                            FewerOSs == x$FewerOSs[1] &
+                            pageNoGrouped == x$pageNoGrouped[1])  
+  mean = sum(preceding$pageClicks )/sum(preceding$totalClicks)
+  
+  
+  x$above =x$percent - 2* x$sd > mean 
+  x$below = x$percent + 2* x$sd < mean
+  return(data.frame(mean=mean, sd=sd, above=sum(x$above), below=sum(x$below)))
+}  )
+rollingAverage$concern = (rollingAverage$above >= 3 &  rollingAverage$below == 0) | (rollingAverage$above ==0 &  rollingAverage$below >= 3) 
+
+
+rollingAveragePlot = subset(rollingAverage, !isWeekend & FewerOSs != "Other" & pageNoGrouped == "top three")
+
+
+forPlot = subset(results, !isWeekend & FewerOSs != "Other" & pageNoGrouped == "top three")
+ggplot(forPlot, aes(x=timestamp, y=percent))+geom_point(aes(color=FewerOSs))+
+  geom_line(aes(color=FewerOSs, group=paste(pageNoGrouped,FewerOSs)))+
+  geom_text(data=subset(forPlot, timestamp == max(timestamp)),aes(label = pageNoGrouped), vjust=-1, size= 5)+
+geom_errorbar(aes(ymin = percent - 2*sd, ymax = percent + 2*sd, color=  FewerOSs))+ylim(0,1) + 
+  geom_point(data=rollingAveragePlot, aes(x=as.Date("2018-01-01")+ 7*(weekNumber - 1), y=mean,color=concern  ), size=5)
+
+
+
+
+
+ggplot(subset(results, FewerOSs == "Mobile"), aes(x=timestamp))+geom_point()
+
+
+
+
+
+  
+

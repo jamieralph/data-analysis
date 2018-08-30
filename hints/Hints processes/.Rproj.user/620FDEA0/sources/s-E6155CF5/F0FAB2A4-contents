@@ -1,0 +1,449 @@
+############################### hints analysis
+
+library(plyr)
+
+folder = "C:/Users/reedm/UK Parliament/THOMAS, Liz - DAs/Hints/"
+
+links1 <- read.csv(paste(folder,"linksclicked.csv",sep=""),stringsAsFactors = F)
+links2 <- read.csv(paste(folder,"moreLinksclicked.csv",sep=""),stringsAsFactors = F)
+links <- rbind(links1,links2)
+#hints <- read.csv(paste(folder,"RegexMatches.csv",sep=""),stringsAsFactors = F)
+hints <-  read.csv(paste(folder,"RegexMatches2.csv",sep=""),stringsAsFactors = F)
+#hints <- read.csv(paste(folder,"RulesMatching.csv",sep=""),stringsAsFactors = F)
+
+basicTheme = theme(axis.text=element_text(size=13),axis.title.x = element_text(size=20),axis.title.y = element_text(size=20),title = element_text(size=25),legend.text = element_text(size=14)  )
+
+
+
+rules <- read.csv(paste(folder,"Rules.csv",sep=""))
+uRules <- read.csv(paste(folder,"unformatRules.csv",sep=""), stringsAsFactors = F)[,1]
+uRules <- uRules[!grepl('#',uRules)]
+uRules <- uRules[uRules != "-"]
+uRules2 <- strsplit(uRules, ' ')
+uRules3 <- laply(uRules2,function(x)x[1])
+desc <- laply(uRules2, function(x)paste(x[2:length(x)],collapse = ' ') )
+r <- substr(uRules3, 2, nchar(uRules3))
+uRules <- NULL
+uRules2 <- NULL
+uRules3 <- NULL
+rules2 <- data.frame(rule=r,ruleName=desc )
+rules2 <- rules2[1:(nrow(rules2)-2),]
+#rules <- rules[1:971,]
+names(links) <- c("timestamp","resultNumber","pageNo","linkClicked")
+names(rules) <- c("rule","ruleName")
+r3 <- rbind(rules2, rules)
+rules <- unique(r3)
+r3 <- NULL
+rules$rule <- gsub("\\?<filter>","" ,rules$rule)
+rules[grepl("^\\(.*\\)$",rules$rule),]$rule <- substr(rules[grepl("^\\(.*\\)$",rules$rule),]$rule,2,nchar(rules[grepl("^\\(.*\\)$",rules$rule),]$rule)-1)
+rules$ruleName = trimws(rules$ruleName)
+rules <- unique(rules)
+row.names(rules) = NULL
+duplicates = subset(rules, rule %in% subset(as.data.frame(table(rules$rule)),Freq > 1 )$Var1)
+rules <- rules[-c(28,30,71,163,1077,1076,912),] # these are the duplicated rules.
+
+
+newRules <- read.csv(paste(folder, "MattExtraRules.csv",sep=""))
+names(newRules) = c("rule","ruleName")#data.frame(
+#   rule = c( "parliament\\.uk/afternoon-tea",
+#             "parliament\\.uk/treascom",
+#             "parliament\\.uk/writtenstatements",
+#             "parliament\\.uk/bigben"     ),
+#   ruleName = c("afternoon tea",
+#                "Treasury Committee",
+#                "Written Statements",
+#                "Big Ben")
+# )
+
+rules = rbind(rules, newRules)
+
+
+#rules <- subset(rules,grepl("(Lords|Commons|House)", ruleName)  )
+
+
+
+hints$description <- trimws(hints$description)
+hints2 <- unique(hints)
+
+
+urisWithoutHints <- as.data.frame(table(subset(links, !(linkClicked %in% hints2$uri))$linkClicked))
+urisWithoutHints <- urisWithoutHints[order(-urisWithoutHints$Freq),] # uris without hints
+
+
+
+matchesPerHint <- merge(as.data.frame(table(hints2$regex)),rules, by.x="Var1",by.y="rule")
+matchesPerHint <- ddply(matchesPerHint, .(Var1), function(x)head(x,1) )
+matchesPerHint <- matchesPerHint[order(-matchesPerHint$Freq),]
+unmatchedHints <- subset(rules,!(rule %in% matchesPerHint$Var1)) # hints without uris
+matchesPerHint <- rbind(matchesPerHint, data.frame(Var1=unmatchedHints$rule,Freq=0,ruleName=unmatchedHints$ruleName ) ) # uris per hint
+
+hintsPerMatch <- as.data.frame(table(hints2$uri))
+hintsPerMatch <- hintsPerMatch[order(-hintsPerMatch$Freq),]
+hintsPerMatch <- rbind(hintsPerMatch, data.frame(Var1=unique(urisWithoutHints$Var1),Freq=0 ) ) # hints per uri
+
+listOfHintsForEachUri <- list()
+for (match in as.character(hintsPerMatch$Var1))
+{
+  listOfHintsForEachUri[[match]] = subset(hints2,uri == match)$description
+  print(match)
+}
+
+
+
+hintsWithOtherHintsfunc <- function(){
+  hintsWithOtherHints <- list()  
+  for (i in 1:nrow(matchesPerHint))
+{
+  thisHint = as.character(matchesPerHint$Var1)[i]
+  rName = matchesPerHint$ruleName[i]
+  matchesThisHint = subset(hints2, regex == thisHint)
+  otherHints = subset(hints2, uri %in% matchesThisHint$uri & regex != thisHint )
+  if (nrow(matchesThisHint) > 0)
+    {
+    coocurrence = as.data.frame(table(otherHints$regex ))
+    coocurrence$Var1 = as.character(coocurrence$Var1)
+    coocurrence=merge(coocurrence, rules, by.x="Var1", by.y = "rule")
+    coocurrence <- coocurrence[order(-coocurrence$Freq),]
+    coocurrence[nrow(coocurrence)+1,]=data.frame(Var1=thisHint,Freq=nrow(matchesThisHint),ruleName=rName,stringsAsFactors = F)
+    coocurrence$prop = coocurrence$Freq/tail(coocurrence,1)$Freq
+    #row.names(coocurrence)=coocurrence$Var1
+    hintsWithOtherHints[[thisHint]] = coocurrence 
+  }
+  print(rName)
+}
+return (hintsWithOtherHints)
+}
+
+hintsWithOtherHints <- hintsWithOtherHintsfunc()
+
+bigMatrixTotal = matrix(nrow=length(hintsWithOtherHints),ncol=length(hintsWithOtherHints))
+bigMatrix = matrix(nrow=length(hintsWithOtherHints),ncol=length(hintsWithOtherHints))
+for (j in 1:length(hintsWithOtherHints))
+{
+  name1=names(hintsWithOtherHints)[j]
+  for (i in 1:length(hintsWithOtherHints))#(i in 1:nrow(hintsWithOtherHints[[name1]]))
+  {
+    if (names(hintsWithOtherHints)[i] %in% hintsWithOtherHints[[name1]]$Var1  )
+    {
+      bigMatrix[j,i ] = subset(hintsWithOtherHints[[name1]],Var1 ==  names(hintsWithOtherHints)[i])$prop
+      bigMatrixTotal[j,i ] = subset(hintsWithOtherHints[[name1]],Var1 ==  names(hintsWithOtherHints)[i])$Freq
+    }
+  }
+  print(name1)
+}
+
+bigMatrix[is.na(bigMatrix)] = 0
+bigMatrixTotal[is.na(bigMatrixTotal)] = 0
+
+
+
+nameIndex=merge(data.frame(rule=names(hintsWithOtherHints)),rules  )
+nameIndex <- nameIndex[match(names(hintsWithOtherHints),nameIndex$rule),]
+
+
+################################## if there are any pairs of entries where hintsWithOtherHints[x,y] = 1 = hintsWithOtherHints[y,x]
+################################## then we can potentially get rid of one of the hints. 
+
+pairs = data.frame(i=character(),j=character(),stringsAsFactors = F)
+
+for (i in 1:nrow(bigMatrix))
+{
+  for (j in 1:ncol(bigMatrix))
+  {
+    if (!is.na(bigMatrix[i,j]))
+    if (bigMatrix[i,j] == 1 & bigMatrix[j,i] == 1 & i != j)
+      pairs = rbind(pairs, data.frame(total=bigMatrixTotal[i,j],i=c(i,j)[order(c(i,j))][1],j=c(i,j)[order(c(i,j))][2],stringsAsFactors = F))
+      #print(paste(i,j))
+  }
+}
+
+
+
+pairs = unique(pairs)
+pairs$iDescription = nameIndex$ruleName[pairs$i]
+pairs$jDescription = nameIndex$ruleName[pairs$j]
+
+
+pairs95 = data.frame(i=character(),j=character(),iprop = numeric(), jprop=numeric(),stringsAsFactors = F)
+for (i in 1:nrow(bigMatrix))
+{
+  for (j in 1:ncol(bigMatrix))
+  {
+    if (!is.na(bigMatrix[i,j]))
+      if (bigMatrix[i,j] > 0.90 & bigMatrix[j,i] > 0.90 & i != j)
+        pairs95 = rbind(pairs95, data.frame(i=c(i,j)[order(c(i,j))][1],j=c(i,j)[order(c(i,j))][2],iprop = bigMatrix[i,j],jprop=bigMatrix[j,i],stringsAsFactors = F))
+      #print(paste(i,j))
+  }
+}
+
+#pairs95 = unique(pairs95)
+pairs95$iDescription = nameIndex$ruleName[pairs95$i]
+pairs95$jDescription = nameIndex$ruleName[pairs95$j]
+
+
+
+
+
+###############################################################
+# what about how much coverage we can get with the fewest hints?
+
+
+#withTime <- merge(links$linkClicked,hints,all.x=T,by.y="uri")
+totalLinks = length(unique(unique(links$linkClicked)))
+totalActualCoverage = length(unique(hints2$uri)) / totalLinks
+remainingLinks = hints2
+coveredLinks=c()
+
+i=1
+coverage=0
+forGraph <- NULL
+while(#coverage < 0.5 &
+      coverage < totalActualCoverage)
+{
+  w=as.data.frame(table(subset(hints2,!(uri %in% coveredLinks) )$regex))
+  w=w[order(-w$Freq),]
+  name=as.character(w$Var1[1])#as.character(nameIndex$rule[i])
+  coveredLinks = unique(c(coveredLinks,subset(hints2, regex == name)$uri))
+  
+  remainingLinks = subset(hints2, !(uri %in% coveredLinks) )
+  coverage = length(coveredLinks) / totalLinks
+  toAdd = data.frame(regex=name,coverage=coverage,rule=subset(matchesPerHint,Var1==name )$ruleName,addedCover=w$Freq[1],totalCovered=subset(matchesPerHint,Var1==name )$Freq  )
+  if (exists("forGraph"))forGraph = rbind(forGraph,toAdd)
+  else   forGraph = toAdd
+  print(paste(name,coverage ))
+  i=i+1
+}
+
+coveredLinksHints <- unique(subset(hints2, uri %in% coveredLinks & regex %in% forGraph$regex ))
+q = as.data.frame(table(coveredLinksHints$uri))
+q=q[order(-q$Freq),]
+
+
+forGraph$order=paste(forGraph$rule,row.names(forGraph))
+forGraph$order = factor(forGraph$order, levels= forGraph$order)
+
+png(paste(folder, "TotalLinksCovered.png",sep=""),width = 1920,height = 1080 )
+ggplot(forGraph, aes(x=order,y=addedCover))+geom_point(size=2.5,color="red",aes(y=totalCovered))+
+  geom_point(size=2.5)+theme(axis.text.x =element_text(angle=30,hjust=1))+ggtitle("Total additional links covered by hints")+xlab("Hint")+ylab("total links")+
+  theme(axis.title = element_text(size = 25), plot.title = element_text(size=25), axis.text.x = element_text(size=15))
+dev.off()
+
+
+png(paste(folder, "CumulativeCoverage.png",sep=""),width = 1920,height = 1080 )
+ggplot(forGraph, aes(x=order,y=coverage))+
+  geom_point(size=2.5)+theme(axis.text.x =element_text(angle=30,hjust=1))+
+  geom_hline(yintercept = c(0.9,0.95))+scale_y_continuous(breaks=seq(0,1,by=0.1),limits=c(0,1),labels=function(x)paste0(x*100,"%")  )+
+  theme(panel.grid.minor = element_blank() , 
+        axis.title = element_text(size = 25), plot.title = element_text(size=25), axis.text.x = element_text(size=15))+
+  ggtitle("Cumulative coverage of sample links by hints")+xlab("Hint")+ylab("Coverage")
+dev.off()
+
+# if we were to deploy theseonly the hints in forgraph, which hints would be co-displayed?
+hintsWithOtherForGraphHints=as.data.frame(table((subset(hints2, uri %in% subset(q, Freq > 1)$Var1 & regex %in% forGraph$regex )$regex  )))
+hintsWithOtherForGraphHints=hintsWithOtherForGraphHints[order(-hintsWithOtherForGraphHints$Freq),]
+
+
+smallerMatrix=matrix(ncol=nrow(hintsWithOtherForGraphHints),nrow=nrow(hintsWithOtherForGraphHints),data=rep(0,nrow(hintsWithOtherForGraphHints)*nrow(hintsWithOtherForGraphHints)))
+i=1
+for (rule in hintsWithOtherForGraphHints$Var1)
+{
+  matches =subset(hints2, uri %in% unique(subset(hints2, regex == rule)$uri) & regex %in% forGraph$regex  )
+  otherMatches=as.data.frame(table(matches$regex))
+  otherMatches=otherMatches[order(-otherMatches$Freq),]
+  otherMatches = merge(otherMatches, data.frame(Var1=hintsWithOtherForGraphHints$Var1,index=1:nrow(hintsWithOtherForGraphHints)))
+  smallerMatrix[i,otherMatches$index] = otherMatches$Freq
+  i=i+1
+}
+smallerMatrixProp=smallerMatrix
+for (i in 1:nrow(smallerMatrixProp))
+{
+  smallerMatrixProp[i,]=round(smallerMatrixProp[i,]/smallerMatrixProp[i,i],2)
+}
+
+linksWithoutHints=as.data.frame(table(subset(links, !(linkClicked %in% coveredLinksHints$uri) )$linkClicked))
+linksWithoutHints=linksWithoutHints[order(-linksWithoutHints$Freq),]
+
+
+# the following are the regex expressions which are in the selects but have a one to one match with another rule, meaning we could choose to include the other rule 
+# instead if we thoguht it would make more sense.
+
+regexWithPairs=names(hintsWithOtherHints)[which(names(hintsWithOtherHints) %in% forGraph$regex)[which(names(hintsWithOtherHints) %in% forGraph$regex) %in% c(pairs$i,pairs$j)]]
+regexWithClosePairs=names(hintsWithOtherHints)[which(names(hintsWithOtherHints) %in% forGraph$regex)[which(names(hintsWithOtherHints) %in% forGraph$regex) %in% c(pairs95$i,pairs95$j)]]
+
+decisions = subset( pairs, iDescription %in% subset(forGraph, regex %in% regexWithPairs)$rule | jDescription %in% subset(forGraph, regex %in% regexWithPairs)$rule)
+decisions2 = subset( pairs95, iDescription %in% subset(forGraph, regex %in% regexWithClosePairs)$rule | jDescription %in% subset(forGraph, regex %in% regexWithClosePairs)$rule)
+
+
+
+# looking at the pairs, and having spoken with jamie, I think the terms we are using are sufficient.
+
+
+hintsWithOtherForGraphHints <- merge(hintsWithOtherForGraphHints, forGraph[,c("regex","rule")], by.x="Var1",by.y="regex")
+hintsWithOtherForGraphHints = hintsWithOtherForGraphHints[order(-hintsWithOtherForGraphHints$Freq),]
+
+
+colnames(smallerMatrix) = hintsWithOtherForGraphHints$rule
+rownames(smallerMatrix) = hintsWithOtherForGraphHints$rule
+
+#write.csv(smallerMatrix,paste(folder, "cooccurrenceInMainHints.csv",sep=""))
+
+# the only hints that match with other hints are document types: pdf, excel or word. so I don't think there's any problem with that.
+
+
+
+links1$Date = as.Date(as.POSIXct(links1$?..timestamp ))
+links1$df="links1"
+links2$Date = as.Date(as.POSIXct(links2$?..timestamp ))
+links2$df="links2"
+l2=rbind(links1, links2)
+
+links3 = read.csv(paste0(folder, "linksClicked3.csv"))
+matchesInLink3=paste(links3$linkClicked,links3$pageNo, links3$resultNumber, links3$?..timestamp) %in% paste(links2$linkClicked, links2$pageNo, links2$resultNumber, links2$?..timestamp)
+links3$Date = as.Date(as.POSIXct(links3$?..timestamp ))
+links3$df="links3"
+l2 = rbind(l2,links3[,names(l2)])
+
+png(paste0(folder,"linksClickedIncludeNewData.png"),height=1020, width=1920)
+ggplot(l2, aes(Date,fill=df))+geom_bar()+basicTheme
+dev.off()
+
+matchesInLink1=paste(links1$linkClicked,links1$pageNo, links1$resultNumber, links1$?..timestamp) %in% paste(links2$linkClicked, links2$pageNo, links2$resultNumber, links2$?..timestamp)
+matchesInLink2=paste(links2$linkClicked,links2$pageNo, links2$resultNumber, links2$?..timestamp) %in% paste(links1$linkClicked, links1$pageNo, links1$resultNumber, links1$?..timestamp)
+sum(matches)
+UniqueLinks = rbind(links1,links2[!matchesInLink2,])
+UniqueLinks=UniqueLinks[order(UniqueLinks$df,decreasing=T) ,]
+
+png(paste0(folder,"linksClickedDatasetOveraslp.png"),height=1020, width=1920)
+ggplot(UniqueLinks, aes(Date,fill=factor(df,levels=c("links2","links1") )))+geom_bar()+scale_fill_discrete(name="dataset")+basicTheme
+dev.off()
+
+
+testLinks <- read.csv(paste0(folder, "linksClicked3.csv"))[,c(1,2,3,4)]
+testHints <- read.csv(paste0(folder,"RegexMatchesTest.csv" ),stringsAsFactors = F)
+testHints=unique(testHints)
+
+length(unique(testLinks$linkClicked)) # 4126 unique uri's
+length(unique(subset(testHints,regex %in% forGraph$regex )$uri )) # cover by the 65 rules
+
+
+matchesPerHint2 <- subset(as.data.frame(table(testHints$regex)),Var1 %in% forGraph$regex )
+matchesPerHint2 = merge(matchesPerHint2, rules, by.x="Var1",by.y="rule")
+#subset(forGraph,!(regex %in% testHints$regex))
+totalLinks = length((unique(testLinks$linkClicked)))
+totalActualCoverage2 = length(unique(testHints$uri)) / totalLinks
+remainingLinks = testHints
+coveredLinks=c()
+i=1
+coverage=0
+forGraph2 <- NULL
+while(#coverage < 0.5 &
+  coverage < 0.98)#totalActualCoverage2)
+{
+  w=subset(as.data.frame(table(subset(testHints,!(uri %in% coveredLinks) )$regex)), Var1 %in% forGraph$regex )
+  w=w[order(-w$Freq),]
+  name=as.character(w$Var1[1])#as.character(nameIndex$rule[i])
+  coveredLinks = unique(c(coveredLinks,subset(testHints, regex == name)$uri))
+  
+  remainingLinks = subset(remainingLinks, !(uri %in% coveredLinks) )
+  coverage = length(coveredLinks) / totalLinks
+  toAdd = data.frame(regex=name,coverage=coverage,rule=subset(matchesPerHint2,Var1==name )$ruleName,addedCover=w$Freq[1],totalCovered=subset(matchesPerHint2,Var1==name )$Freq  )
+  if (exists("forGraph2"))forGraph2= rbind(forGraph2,toAdd)
+  else   forGraph2 = toAdd
+  print(paste(name,coverage ))
+  i=i+1
+}
+forGraph2 <- merge(forGraph2, forGraph[,c("regex","order")])
+forGraph2 = forGraph2[order(forGraph2$coverage),]
+unusedMatches <- as.data.frame(table(subset(testHints,!(uri %in% coveredLinks) )$regex))
+unusedMatches=unusedMatches[order(-unusedMatches$Freq),]
+unusedMatches=merge(unusedMatches, rules, by.x="Var1",by.y="rule") # rules to add to the set
+names(unusedMatches) = c("regex","Freq","rule")
+
+
+sum(unusedMatches$Freq) #10 uris will not get a match with the 65 that would have if we had pick a different exhaustive set.
+
+
+
+ggplot(forGraph, aes(x=order,y=coverage))+
+  geom_point(size=2.5)+theme(axis.text.x =element_text(angle=30,hjust=1))+
+  geom_hline(yintercept = c(0.9,0.95))+scale_y_continuous(breaks=seq(0,1,by=0.1),limits=c(0,1),labels=function(x)paste0(x*100,"%")  )+
+  geom_point(data=forGraph2, aes(x=order,y=coverage),color="red")
+  basicTheme + ggtitle("Cumulative coverage of sample links by hints")+xlab("Hint")+ylab("Coverage")
+
+  
+
+  coveredLinksHints <- unique(subset(testHints, uri %in% coveredLinks & regex %in% forGraph2$regex ))
+  q = as.data.frame(table(coveredLinksHints$uri))
+  q=q[order(-q$Freq),]
+  
+  
+  hintsWithOtherForGraphHints2=as.data.frame(table((subset(testHints, uri %in% subset(q, Freq > 1)$Var1 & regex %in% forGraph2$regex )$regex  )))
+  hintsWithOtherForGraphHints2=hintsWithOtherForGraphHints2[order(-hintsWithOtherForGraphHints2$Freq),]
+  hintsWithOtherForGraphHints2=merge(hintsWithOtherForGraphHints2,rules, by.x="Var1",by.y="rule")
+  
+  
+  smallerMatrix=matrix(ncol=nrow(hintsWithOtherForGraphHints2),nrow=nrow(hintsWithOtherForGraphHints2),data=rep(0,nrow(hintsWithOtherForGraphHints2)*nrow(hintsWithOtherForGraphHints2)))
+  i=1
+  for (rule in hintsWithOtherForGraphHints2$Var1)
+  {
+    matches =subset(testHints, uri %in% unique(subset(testHints, regex == rule)$uri) & regex %in% forGraph2$regex  )
+    otherMatches=as.data.frame(table(matches$regex))
+    otherMatches=otherMatches[order(-otherMatches$Freq),]
+    otherMatches = merge(otherMatches, data.frame(Var1=hintsWithOtherForGraphHints2$Var1,index=1:nrow(hintsWithOtherForGraphHints2)))
+    smallerMatrix[i,otherMatches$index] = otherMatches$Freq
+    i=i+1
+  }
+  smallerMatrixProp=smallerMatrix
+  for (i in 1:nrow(smallerMatrixProp))
+  {
+    smallerMatrixProp[i,]=round(smallerMatrixProp[i,]/smallerMatrixProp[i,i],2)
+  }
+  
+forGraph$regex<-as.character(forGraph$regex)
+forGraph$rule<-as.character(forGraph$rule)
+newRules <- rbind(forGraph[,c("regex","rule")],unusedMatches[,c("regex","rule")])
+  
+  
+
+biggestHints = rbind(hints2,testHints)
+biggestLinks  = rbind(links[,c("pageNo","linkClicked")], testLinks[,c("pageNo","linkClicked")])
+
+matchesPerHint2 <- subset(as.data.frame(table(biggestHints$regex)),Var1 %in% newRules$regex )
+matchesPerHint2 = merge(matchesPerHint2, rules, by.x="Var1",by.y="rule")
+#subset(forGraph,!(regex %in% testHints$regex))
+totalLinks = length((unique(biggestLinks$linkClicked)))
+totalActualCoverage2 = length(unique(biggestHints$uri)) / totalLinks
+remainingLinks = biggestHints
+coveredLinks=c()
+i=1
+coverage=0
+forGraph3 <- NULL
+while(#coverage < 0.5 &
+  coverage < totalActualCoverage2)
+{
+  w=subset(as.data.frame(table(subset(biggestHints,!(uri %in% coveredLinks) )$regex)), Var1 %in% newRules$regex )
+  w=w[order(-w$Freq),]
+  name=as.character(w$Var1[1])#as.character(nameIndex$rule[i])
+  coveredLinks = unique(c(coveredLinks,subset(biggestHints, regex == name)$uri))
+  
+  remainingLinks = subset(remainingLinks, !(uri %in% coveredLinks) )
+  coverage = length(coveredLinks) / totalLinks
+  toAdd = data.frame(regex=name,coverage=coverage,rule=subset(matchesPerHint,Var1==name )$ruleName,
+                     addedCover=w$Freq[1]  )
+  if (exists("forGraph3"))forGraph3= rbind(forGraph3,toAdd)
+  else   forGraph3 = toAdd
+  print(paste(name,coverage ))
+  i=i+1
+}
+
+
+
+
+
+
+
+
+
+
+
+
