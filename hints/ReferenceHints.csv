@@ -380,7 +380,7 @@ parliament\.uk/documents/commons-committees/Exiting-the-European-Union,Exiting t
 publications\.parliament\.uk/.+/cmpribus/PB_EM(\d{2})(\d{2})(\d{2}),Explanatory Memorandum for {3}-{2}-{1}
 parliament\.uk/mps-lords-and-offices/offices/lords/house-of-lords-external-communications,External Communications
 parliament\.uk/business/committees/committees-a-z/lords-select/extradition-law,Extradition Law Committee
-(?<filter>parliament\.uk/about/faqs),FAQs
+(?<filter>parliament\.uk/about/faqs),FAQ
 lordsbusiness\.parliament\.uk/Documents/Download\?[^&]+&filename=([^.]+).,File name: {1}
 archive\.scottish\.parliament\.uk/s3/committees/finance,Finance
 archive\.scottish\.parliament\.uk/business/committees(\/.+)?/finance,Finance
@@ -458,7 +458,7 @@ publications\.parliament\.uk/.+/ldhouse,House Committee
 parliament\.uk/business/committees/committees-a-z/lords-select/house-committee,House Committee
 parliament\.uk/documents/lords-committees/house,House Committee
 (?<filter>hansard\.parliament\.uk/commons),House of Commons
-(?<filter>publications\.parliament\.uk/pa/cm/),Commons
+(?<filter>publications\.parliament\.uk/pa/cm/),Commons publications
 (?<filter>parliament\.uk/documents/commons/),House of Commons
 parliament\.uk/documents/publications-records/House-of-Commons-Publications,House of Commons
 parliament\.uk/business/publications/commons,House of Commons
@@ -468,7 +468,7 @@ parliament\.uk/business/committees/committees-a-z/other-committees/house-of-comm
 parliament\.uk/mps-lords-and-offices/offices/commons/hcio,House of Commons Enquiry Service
 parliament\.uk/business/committees/committees-a-z/commons-select/house-of-commons-governance-committee,House of Commons Governance Committee
 (?<filter>hansard\.parliament\.uk/lords),House of Lords
-(?<filter>publications\.parliament\.uk/pa/ld/),Lords
+(?<filter>publications\.parliament\.uk/pa/ld/),Lords publications
 (?<filter>parliament\.uk/documents/lords/),House of Lords
 parliament\.uk/documents/publications-records/House-of-Lords-Publications,House of Lords
 parliament\.uk/business/publications/lords,House of Lords
