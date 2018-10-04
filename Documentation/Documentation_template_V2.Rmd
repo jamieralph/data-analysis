@@ -1,0 +1,73 @@
+---
+title: "Project title"
+author: "Author"
+date: "Time period when project was undertaken"
+output: 
+  html_document:
+    theme: cerulean
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Overview {.tabset}
+
+### Background and aims
+
+* Brief description of the topic / issue that the work looked at.
+
+* What were the overall aims of the piece of work? e.g. Gain insight, automate a process, encourage best practice. 
+
+### Teams and individuals 
+
+* Who did we work with? (This can include third-party teams that we worked with during the project)
+* Who in the Data team worked on the project?
+* Best person to query?
+
+
+## Software and methods {.tabset}
+
+### Software
+
+* Software - include versions (e.g. R version 3.5.1)
+* Add-ons required (e.g. R packages or BI Visualisations) - include versions if relevant (e.g. "ggplot version 2.2.1
+                                                              used because version 3.0.0 conflicted with package X")
+
+### Databases (optional)
+
+* Did the data come from a specific database?
+* How was the data accessed?
+
+### Method
+
+* A high-level guide to what method was used. Rather than a step-by-step, describe the broader steps taken and include any code for reference. Where possible, give the reader an idea of what the data looked like. For example: 
+
+The data was imported into RStudio and transformed from wide to long format. 
+
+```{r message = FALSE, warning=FALSE}
+library(readxl)
+library(magrittr)
+library(tidyverse)
+data <- read_csv("my_spreadsheet.csv") %>%
+  gather("January":"December", key = "Month", value = "page_views")
+
+head(data)
+```
+
+
+
+### Additional Notes
+* A brief note on why we chose this software and method - was there a decision process? 
+* Alternative approaches that we were not chosen and why 
+* Potential approaches that could be explored in future
+* Anything else that might be relevant 
+
+### Feedback
+Detail here any relevant feedback from external teams about **the method itself**. For example:
+
+* What worked well?
+* Did anything not make sense? 
+
+
+
