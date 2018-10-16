@@ -1,2 +1,3 @@
-# Set the default behavior, in case people don't have core.autocrlf set.
-*.csv text eol=crlf
+# Set the default behavior
+#*.csv text eol=crlf
+* -crlf
