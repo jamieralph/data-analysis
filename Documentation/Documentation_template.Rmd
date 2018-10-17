@@ -1,0 +1,67 @@
+---
+title: "Project title"
+date: "Start month - End month"
+output: 
+  html_document:
+    theme: cerulean
+    toc: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Overview
+
+### Background and aims
+
+* Brief description of the topic / issue that the work looked at.
+
+* What were the overall aims of the piece of work? e.g. Gain insight, automate a process, encourage best practice. 
+
+### Teams and individuals 
+
+* Who did we work with? (This can include third-party teams that we worked with during the project)
+* Best person to query/contact?
+
+## Software and methods
+
+### Software
+
+* Software - include versions
+* Add-ons required (e.g. R packages or BI Visualisations) - include versions
+* Make a note of why, if relevant, a certain version was used
+
+```{r}
+sessionInfo()
+```
+
+### Source
+
+* Did the data come from a specific database?
+* How was the data accessed?
+* Does the user need special permissions?
+
+### Method
+
+* A high-level guide to what method was used. Rather than a step-by-step, describe the broader steps taken.
+* If you're using a dataset, explain what variables are being used
+
+
+
+### Additional Notes
+
+**Why did we choose this approach?**
+
+**Are there alternative approaches that could be explored in future?**
+
+**[Add anything else relevant here]**
+
+### Feedback
+Detail here any relevant feedback from external teams about **the method itself**. For example:
+
+* What worked well?
+* Did anything not make sense? 
+
+
+
