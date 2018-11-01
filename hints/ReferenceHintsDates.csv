@@ -1,0 +1,31 @@
+rule,ruleName,type
+(?<filter>archives\.blog\.parliament\.uk/(\d{4}/\d{2})/\d{2}),{1},Date
+(?<filter>hansard\.parliament\.uk/.+/(\d{4})-(\d{2})-(\d{2})),{3}-{2}-{1},Date
+(?<filter>parliament\.uk/edm/(\d{4}-\d{2})),{1} Session ,Date
+(?<filter>pds\.blog\.parliament\.uk/(\d{4}/\d{2})/\d{2}),{1},Date
+(?<filter>publications\.parliament\.uk/pa/ld(\d{4})(\d{2})),{1}-{2} Session,Date
+(?<filter>services\.parliament\.uk/bills/(\d{4})-(\d{2})),{1}-{2} Session,Date
+calendar\.parliament\.uk/calendar/[^/]+/([^/]+)/(\d+)/(\d+)/(\d+)/,{4}-{3}-{2},Date
+electionresults\.parliament\.uk/election/(\d{4})-\d{2}-\d{2}/[Rr]esults/[Ll]ocation/.+/(.+),{1},Date
+lordsbusiness\.parliament\.uk/\?businessPaperDate=(\d{4})-(\d{2})-(\d{2}),{3}-{2}-{1},Date
+parliament\.uk/business/committees/.+/diversity-(\d{2})-(\d{2}),{1}-{2},Date
+parliament\.uk/business/committees/.+/inquiries/parliament-(\d{4}),{1},Date
+parliament\.uk/business/committees/.+/news-parliament-(\d{4}),{1},Date
+parliament\.uk/business/news/(\d{4})/(\w+),"{2}, {1}",Date
+"parliament\.uk/business/news/.+/.+/pmqs-(\d{1,2})-(\w+)-(\d{4})","{1} {2}, {3}",Date
+"parliament\.uk/business/news/.+/.+/prime-.+-questions-(\d{1,2})-(\w+)-(\d{4})","{1} {2}, {3}",Date
+"parliament\.uk/business/news/.+/.+/this-week-in-the-commons-(\d{1,2})-(\w+)-(\d{4})","{1} {2}, {3}",Date
+"parliament\.uk/business/news/.+/.+/this-week-in-the-commons-(\d{1,2})-{1,3}(\d{1,2})-(\w+)-(\d{4})","{1}-{2} {3}, {4}",Date
+parliament\.uk/business/publications/business-papers/lords/lords-divisions/[^&]+&division=(\d),{1},Date
+parliament\.uk/business/publications/business-papers/lords/lords-divisions/\?dd=(\d{4})-(\d{2})-(\d{2})&division=(\d),{3}-{2}-{1},Date
+parliament\.uk/business/publications/written-questions-answers-statements/written-(question|statement)/(\w+)/(.+)/.+,{2} on {3},Date
+parliament\.uk/documents/commons-committees/journal-office/sessional-dairies/[^/]+(\d{4})-(\d{2}),{1}-{2},Date
+parliament\.uk/documents/commons-public-bill-office/([0-9-]*)/.+,{1} Session ,Date
+parliament\.uk/documents/DPRR/(\d{4})-(\d{2}),{1}-{2} Session,Date
+parliament\.uk/documents/publications-records/House-of-Lords-Publications/Records-activities-and-membership/Register-of-Lords-Interests/Register(\d{2})(\d{2})(\d{2}),{1}-{2}-{3},Date
+"parliament\.uk/PMQs-(\d{1,2})-(\w+)-(\d{4})","{1} {2}, {3}",Date
+publications\.parliament\.uk/.+/c[^/]+/[^/]*(\d{1})(\d{2})(\d{2}),{3}-{2}-0{1},Date
+publications\.parliament\.uk/.+/c[^/]+/[^/]*(\d{2})(\d{2})(\d{2}),{3}-{2}-{1},Date
+"publications\.parliament\.uk/.+/privbill/(\d{2,4})(\d{2})/",{1}-{2} Session,Date
+publications\.parliament\.uk/pa/bills/c?l?bill/(\d{4})-(\d{4})/,{1}-{2},Date
+publications\.parliament\.uk/pa/pabills/(\d{4})(\d{2}),{1}-{2},Date
