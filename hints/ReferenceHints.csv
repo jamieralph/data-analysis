@@ -587,7 +587,7 @@ parliament\.uk/documents/commons-public-bill-office/.+/keeling-schedules,Keeling
 secondreading\.parliament\.uk.*/key-issues,key issues
 parliament\.uk/business/publications/research/key-issues-for-the-new-parliament,Key Issues for the New Parliament publication
 parliament\.uk/about/how/laws,Laws
-parliament\.uk/business/committees/committees-a-z/other-committees/leaders-group,Leader’s Group on the Working Practices of the House of Lords
+parliament\.uk/business/committees/committees-a-z/other-committees/leaders-group,LeaderÂ’s Group on the Working Practices of the House of Lords
 publications\.parliament\.uk/.+/ldleader,Leader's Group on Governance
 parliament\.uk/business/committees/committees-a-z/other-committees/leaders-group-governance,Leader's Group on Governance
 parliament\.uk/business/committees/committees-a-z/other-committees/leaders-group-on-members-leaving-the-house,Leader's Group on Members Leaving the House
@@ -956,13 +956,13 @@ parliament\.uk/business/committees/committees-a-z/lords-select/social-mobility,S
 parliament\.uk/documents/lords-committees/social-mobility,Social Mobility Committee
 secondreading\.parliament\.uk.*/social-policy,Social Policy
 parliament\.uk/business/committees/committees-a-z/former-committees/commons-select/social-security-committee-,Social Security Committee
-parliament\.uk/business/committees/committees-a-z/lords-select/soft-power-and-the-uks-influence,Soft Power and the UK’s Influence Committee
+parliament\.uk/business/committees/committees-a-z/lords-select/soft-power-and-the-uks-influence,Soft Power and the UKÂ’s Influence Committee
 parliament\.uk/business/committees/committees-a-z/former-committees/commons-select/south-east-committee,South East Committee
 publications\.parliament\.uk/.+/cmseast,South East Regional Committee
 parliament\.uk/business/committees/committees-a-z/former-committees/commons-select/south-west-committee,South West Committee
 publications\.parliament\.uk/.+/cmswest,South West Regional Committee
 parliament\.uk/business/commons/the-speaker/speeches/speakers-lecture-series/,Speaker Lecture Series
-(?<filter>digitaldemocracy\.parliament\.uk),Speaker’s Commission on Digital Democracy
+(?<filter>digitaldemocracy\.parliament\.uk),SpeakerÂ’s Commission on Digital Democracy
 parliament\.uk/business/committees/committees-a-z/other-committees/works-of-art,Speaker's Advisory Committee on Works of Art
 parliament\.uk/documents/commons-committees/works-of-art,Speaker's Advisory Committee on Works of Art
 parliament\.uk/business/committees/committees-a-z/other-committees/speakers-committee-for-the-independent-parliamentary-standards-authority,Speaker's Committee for the Independent Parliamentary Standards Authority

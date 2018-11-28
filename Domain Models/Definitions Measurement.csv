@@ -1,0 +1,37 @@
+Type,Description,Synonym,Definition,Purpose
+Concept,Audience Type,,The type of users that will be reviewing and reacting to the KPIs/ measures ,to help identify which measures and level of detail is required for reporting based on audience type 
+Concept,Business Context,,"The background in which the organisation is operating, normally framed as a challenge. Our costs are increasing, we cannot retain our staff, our carbon footprint is increasing",To provide a context for the setting of a specific goal
+Concept,Business Value,,Benefit from meeting the goal,
+Concept,Collection Method,,The method of obtaining data from source,
+Concept,Data point/ observation ,,Raw data collected manually or automatically specific to a single variable. ,
+Concept,Derivation Method,,The method by which a value has been determined ,
+Concept,Goal,,Describes what the organisation expects to accomplish over a specific period of time. This can be qualitative or quantitative,
+Concept,Information Needs,,The information specified by audience that they need  in order to be able to understand how the organisation is progressing with regards to a particular goal or target. ,
+Concept,Interpretation,,The action of explaining the meaning of something.,
+Concept,KPI,,"A measure whose value is assessed against a target, reflects business performance and should support decision making",
+Concept,Measurement method ,,The method by which a measurement has been taken ,
+Concept,Metric,Measure,A variable composed of one or more measurements ,to represent data in a meaningful and interpretable way 
+Concept,Owner,,The role responsible for commissining the KPI,
+Concept,Reporting Frequency,,The frequency with which the KPI is reported to the audience,
+Concept,Source,,"Source of data points .e.g. the record  (a system, a file location,) of themeasurable thing",to identify common sources between measures 
+Concept,Target,,Quantifiable representation of the goal or part of the goal,
+Concept,Unit,,A quantity or description used to define a measure/ metric type ,To provide context to a measure and identify which metrics can be compared 
+Concept,Validity Period,,The length of time during which a target is valid. This should have a start date and a review date.,
+Relationship,generates,,relates goals to business context,
+Relationship,within,,,
+Relationship,support,,,
+Relationship,hasNeeds,,,
+Relationship,hasOwner,,relates a KPI to the person or team responsible for it,
+Relationship,leadsTo,,relates a goal to business value,
+Relationship,isCalculatedWith,,relates a measure to the data used to create it,
+Relationship,isComposedOf,,relates a KPI to a measure or measures,
+Relationship,hasMethod,,relates a measure to how it has been derived,
+Relationship,hasBaselineValue,,relates measure to a value for purposes of comparison,
+Relationship,actualises,,relates a target to the goal it supports,
+Relationship,hasValidityPeriod,,relates a target to the time period it should be realised by,
+Relationship,specify,,relates,
+Relationship,haveSource,,relates,
+Relationship,contributesToMeeting,,relates,
+Relationship,usesDerivationMethod,,relates,
+Relationship,fromSource,,relates,
+
