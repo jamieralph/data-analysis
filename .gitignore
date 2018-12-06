@@ -1,2 +1,4 @@
 .httr-oauth
 /.vs
+.stackdump
+.Rproj.user
