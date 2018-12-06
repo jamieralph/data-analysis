@@ -2,3 +2,4 @@
 /.vs
 .stackdump
 .Rproj.user
+.DS_Store
